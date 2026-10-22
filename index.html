@@ -19,6 +19,18 @@ button{touch-action:manipulation}
 .settings-button{position:absolute;z-index:3;top:calc(12px + var(--safe-t));right:calc(14px + var(--safe-r));width:42px;height:42px;border:1px solid #7a7a5a;background:#25291b;color:var(--cream);display:grid;place-items:center;border-radius:4px;cursor:pointer}
 .settings-button:active,.button:active{transform:scale(.97)}
 .settings-button svg{width:21px;height:21px}
+.nickname-row{display:flex;align-items:center;gap:9px;margin-top:clamp(17px,3vh,27px);min-width:0;color:#cbc9b1;font-size:clamp(12px,1.4vw,15px)}
+.nickname-label{color:#a2a387}
+.nickname-value{max-width:min(45vw,260px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#eee8d4;font-weight:700}
+.nickname-edit{width:30px;height:30px;display:grid;place-items:center;border:1px solid #686b4c;border-radius:3px;background:#25291c;color:#d8d4bd;cursor:pointer}
+.nickname-edit svg{width:15px;height:15px}
+.nickname-edit:active{transform:scale(.96)}
+.mode-choices{display:grid;grid-template-columns:1fr;gap:9px}
+.mode-option{width:100%;min-height:64px;padding:12px 13px;text-align:left;border:1px solid #606347;border-radius:3px;background:#1b1e14;color:var(--cream);display:flex;flex-direction:column;justify-content:center;gap:5px;cursor:pointer}
+.mode-option.selected{border-color:#bdc17e;background:#343923;box-shadow:inset 3px 0 0 #bdc17e}
+.mode-title{font-weight:700;font-size:14px}
+.mode-caption{font-size:11px;line-height:1.3;color:#b7b79f}
+.mode-option.selected .mode-caption{color:#dedcc3}
 .menu-layout{position:relative;z-index:1;width:min(100%,1000px);height:100%;margin:auto;padding:calc(22px + var(--safe-t)) calc(34px + var(--safe-r)) calc(22px + var(--safe-b)) calc(34px + var(--safe-l));display:grid;grid-template-columns:minmax(0,1fr) 220px;gap:clamp(20px,5vw,64px);align-items:center}
 .intro{min-width:0}
 .kicker{margin:0 0 13px;color:#c5bd93;font-size:clamp(10px,1.2vw,13px);font-weight:700;letter-spacing:.17em;text-transform:uppercase}
@@ -84,9 +96,14 @@ input[type=checkbox]{width:18px;height:18px;accent-color:#bdc17e}
   </button>
   <div class="menu-layout">
     <section class="intro" aria-label="Главное меню">
-      <p class="kicker">Выживание начинается здесь</p>
       <h1>DOOMED<span>MOB</span></h1>
-      <p class="tagline">Собирай ресурсы. Строй убежище. Выживай.</p>
+      <div class="nickname-row">
+        <span class="nickname-label">Игрок</span>
+        <span class="nickname-value" id="nicknameDisplay">Выживший</span>
+        <button class="nickname-edit" id="editNickname" aria-label="Изменить ник" title="Изменить ник">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z"/></svg>
+        </button>
+      </div>
     </section>
     <nav class="actions" aria-label="Меню">
       <button class="button primary" id="playButton">Начать игру <span class="arrow">→</span></button>
@@ -95,11 +112,26 @@ input[type=checkbox]{width:18px;height:18px;accent-color:#bdc17e}
   </div>
   <section class="overlay" id="playOverlay" role="dialog" aria-modal="true" aria-labelledby="playTitle">
     <div class="dialog">
-      <div class="dialog-head"><h2 id="playTitle">Новая игра</h2><button class="close" data-close aria-label="Закрыть">×</button></div>
-      <p class="description">Выбери имя для своего выжившего.</p>
-      <label class="field" for="playerName">Имя игрока</label>
-      <input id="playerName" type="text" maxlength="16" placeholder="Выживший" autocomplete="nickname">
+      <div class="dialog-head"><h2 id="playTitle">Начать игру</h2><button class="close" data-close aria-label="Закрыть">×</button></div>
+      <p class="description">Выбери режим игры.</p>
+      <div class="mode-choices" role="group" aria-label="Режим игры">
+        <button class="mode-option selected" type="button" data-mode="survival" aria-pressed="true">
+          <span class="mode-title">Выживание</span><span class="mode-caption">Исследуй мир в одиночку</span>
+        </button>
+        <button class="mode-option" type="button" data-mode="online" aria-pressed="false">
+          <span class="mode-title">Онлайн</span><span class="mode-caption">Игра с другими игроками</span>
+        </button>
+      </div>
       <div class="dialog-actions"><button class="button secondary" data-close>Назад</button><button class="button primary" id="confirmPlay">Продолжить</button></div>
+    </div>
+  </section>
+  <section class="overlay" id="nicknameOverlay" role="dialog" aria-modal="true" aria-labelledby="nicknameTitle">
+    <div class="dialog">
+      <div class="dialog-head"><h2 id="nicknameTitle">Изменить ник</h2><button class="close" data-close aria-label="Закрыть">×</button></div>
+      <p class="description">Этот ник будет отображаться в игре.</p>
+      <label class="field" for="nicknameInput">Ник игрока</label>
+      <input id="nicknameInput" type="text" maxlength="16" placeholder="Выживший" autocomplete="nickname">
+      <div class="dialog-actions"><button class="button secondary" data-close>Отмена</button><button class="button primary" id="saveNickname">Сохранить</button></div>
     </div>
   </section>
   <section class="overlay" id="settingsOverlay" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
@@ -121,15 +153,23 @@ input[type=checkbox]{width:18px;height:18px;accent-color:#bdc17e}
 (function(){
 'use strict';
 const $=s=>document.querySelector(s);
-const defaults={volume:35,effects:true,name:''};
+const defaults={volume:35,effects:true,name:'Выживший',mode:'survival'};
 let settings={...defaults},audio=null,toastTimer=0;
 try{const saved=JSON.parse(localStorage.getItem('doomedMob.settings.v2')||'null');if(saved&&typeof saved==='object')settings={...defaults,...saved}}catch(e){}
+settings.name=String(settings.name||'Выживший').trim().replace(/[<>]/g,'').slice(0,16)||'Выживший';
+settings.mode=settings.mode==='online'?'online':'survival';
 function save(){try{localStorage.setItem('doomedMob.settings.v2',JSON.stringify(settings))}catch(e){}}
 function apply(){
   $('#volumeRange').value=settings.volume;
   $('#effectsToggle').checked=!!settings.effects;
   $('.landscape').style.display=settings.effects?'block':'none';
-  $('input#playerName').value=settings.name||'';
+  $('#nicknameDisplay').textContent=settings.name||'Выживший';
+  $('#nicknameInput').value=settings.name||'Выживший';
+  document.querySelectorAll('[data-mode]').forEach(button=>{
+    const selected=button.dataset.mode===settings.mode;
+    button.classList.toggle('selected',selected);
+    button.setAttribute('aria-pressed',String(selected));
+  });
 }
 function clickSound(){
   if(!settings.volume)return;
@@ -150,13 +190,27 @@ function open(id){document.querySelectorAll('.overlay.open').forEach(e=>e.classL
 function close(){document.querySelectorAll('.overlay.open').forEach(e=>e.classList.remove('open'))}
 $('#playButton').addEventListener('click',()=>{clickSound();open('playOverlay')});
 $('#settingsButton').addEventListener('click',()=>{clickSound();open('settingsOverlay')});
+$('#editNickname').addEventListener('click',()=>{clickSound();$('#nicknameInput').value=settings.name||'Выживший';open('nicknameOverlay');setTimeout(()=>$('#nicknameInput').focus(),50)});
+$('#saveNickname').addEventListener('click',()=>{
+  clickSound();
+  settings.name=$('#nicknameInput').value.trim().replace(/[<>]/g,'').slice(0,16)||'Выживший';
+  save();apply();close();showToast('Ник сохранён');
+});
+$('#nicknameInput').addEventListener('keydown',event=>{if(event.key==='Enter')$('#saveNickname').click()});
+document.querySelectorAll('[data-mode]').forEach(button=>button.addEventListener('click',()=>{
+  clickSound();settings.mode=button.dataset.mode;apply();save();
+}));
 document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',()=>{clickSound();close()}));
 document.querySelectorAll('.overlay').forEach(e=>e.addEventListener('click',ev=>{if(ev.target===e)close()}));
 document.addEventListener('keydown',e=>{if(e.key==='Escape')close()});
 $('#confirmPlay').addEventListener('click',()=>{
-  clickSound();settings.name=$('#playerName').value.trim().replace(/[<>]/g,'').slice(0,16);save();close();
+  clickSound();save();close();
   try{if(screen.orientation&&screen.orientation.lock)screen.orientation.lock('landscape').catch(()=>{})}catch(e){}
-  showToast('Принято, '+(settings.name||'выживший')+'. Игровой мир добавим следующим этапом.');
+  if(settings.mode==='online'){
+    showToast('Онлайн выбран. Подключение игроков добавим следующим этапом.');
+  }else{
+    showToast('Выживание выбрано. Игровой мир добавим следующим этапом.');
+  }
 });
 $('#volumeRange').addEventListener('input',e=>{settings.volume=Number(e.target.value);save()});
 $('#effectsToggle').addEventListener('change',e=>{settings.effects=e.target.checked;save();apply();clickSound()});
